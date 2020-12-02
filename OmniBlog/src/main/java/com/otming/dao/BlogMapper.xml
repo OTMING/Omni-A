@@ -1,0 +1,107 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.otming.dao.BlogMapper">
+
+    <resultMap id="blogData" type="blog">
+        <id property="id" column="blog_id"/>
+        <result property="title" column="title"/>
+        <result property="cdate" column="cdate"/>
+        <result property="content" column="content"/>
+        <result property="summaryText" column="summary_text"/>
+        <association property="user" javaType="User" column="user_id">
+            <id property="id" column="user_id"/>
+            <result property="username" column="username"/>
+        </association>
+        <association property="blogType" javaType="BlogType" column="type_id">
+            <id property="id" column="type_id"/>
+            <result property="typeName" column="type_name"/>
+        </association>
+    </resultMap>
+    
+
+    <select id="selectBlog" resultType="blog">
+        select id,title,owner,cdate,typeId from blog;
+    </select>
+
+
+
+    <select id="getBlog" parameterType="map" resultMap="blogData">
+        select
+            b.blog_id,b.title,b.cdate,b.content,b.summary_text,
+            bt.type_id,bt.type_name,
+            u.user_id,u.username
+        from blog b left join blog_type bt on b.type_id=bt.type_id
+        left join user u on b.user_id = u.user_id
+        <where>
+            <if test="bid != null">
+                b.blog_id = #{bid}
+            </if>
+            <if test="blogType != null">
+               AND bt.type_name = #{blogType}
+            </if>
+            <if test="username != null">
+                AND u.username = #{username}
+            </if>
+        </where>
+        order by b.blog_id desc
+        <if test="startIndex !=null and pageSize !=null">
+            limit #{startIndex},#{pageSize}
+        </if>;
+
+    </select>
+
+
+
+
+    <insert id="insertBlog" parameterType="map">
+        insert into
+        blog  (title,content,summary_text,
+        user_id,cdate,type_id)
+        values (#{title},#{content},#{summaryText},
+        (select u.user_id from user u where u.username = #{owner}),
+        #{createDate},(select bt.type_id from blog_type bt where bt.type_name = #{blogType}));
+    </insert>
+
+    <delete id="deleteBlogById">
+        delete from blog where blog_id = #{id}
+    </delete>
+
+    <update id="updateBlogById" parameterType="map">
+       update blog b set b.title=#{title}, b.content=#{content},b.summary_text=#{summaryText}, b.type_id=(select bt.type_id from blog_type bt where bt.type_name = #{blogType}) where blog_id=#{bid};
+    </update>
+
+
+
+   <!-- <select id="selectBlogById" resultType="blog">
+        select * from blog where id = #{id};
+    </select>
+
+    <select id="getBlogByTypeId" resultMap="blogData">
+        select
+        b.id,title,owner,cdate,content,t.id,t.type_name
+        from blog b
+        left join blog_type t on b.type_id = t.id
+        where t.id = #{id};
+    </select>
+
+    <select id="getData" parameterType="map" resultType="blog">
+            select * from blog order by id desc limit #{startIndex},#{pageSize};
+    </select>
+
+    <select id="selectBlogByType" resultType="blog">
+        select * from blog where blogtype = #{blogtype};
+    </select>
+
+    <select id="selectBlogByName" parameterType="String" resultType="blog">
+        select * from blog where owner = #{username} order by id desc;
+    </select>
+
+    <select id="getDataByName" parameterType="map" resultType="blog">
+        select * from blog where owner = #{username} order by id desc limit #{startIndex},#{pageSize};
+    </select>
+
+    <select id="getDataByType" parameterType="map" resultType="blog">
+        select * from blog where blogtype = #{blogtype} order by id desc limit #{startIndex},#{pageSize};
+    </select>-->
+</mapper>

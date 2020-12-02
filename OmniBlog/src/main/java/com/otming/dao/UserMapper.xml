@@ -1,0 +1,34 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.otming.dao.UserMapper">
+
+
+    <select id="findall" resultType="user">
+        select * from user;
+    </select>
+    <!--查-->
+    <select id="selectUser" parameterType="map" resultType="user">
+        select * from user where username=#{username} and password=#{password};
+    </select>
+
+    <select id="selectByName" parameterType="String" resultType="user">
+        select * from user where username=#{username};
+    </select>
+
+    <!--增-->
+    <insert id="insertUser" parameterType="map">
+        insert into user (username,password) values (#{username},#{password});
+    </insert>
+
+    <!--删-->
+    <delete id="deleteUser" parameterType="map">
+        delete from user where username = #{username};
+    </delete>
+
+    <!--改-->
+    <update id="updateUser" parameterType="map">
+        update user set password = #{password} where username = #{username} ;
+    </update>
+
+</mapper>
